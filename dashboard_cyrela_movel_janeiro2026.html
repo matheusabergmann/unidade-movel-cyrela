@@ -1,0 +1,368 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); }
+  .dash { padding: 1.5rem 0; }
+  .section-title { font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-text-tertiary); margin-bottom: 10px; }
+  .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 1.5rem; }
+  .metric { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 12px 14px; }
+  .metric-label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 4px; }
+  .metric-value { font-size: 22px; font-weight: 500; color: var(--color-text-primary); }
+  .metric-sub { font-size: 11px; color: var(--color-text-tertiary); margin-top: 2px; }
+  .card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 1rem; }
+  .card-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 12px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+  .chart-wrap { position: relative; width: 100%; }
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; color: var(--color-text-secondary); margin-bottom: 8px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; margin-right: 4px; }
+  .table-wrap { width: 100%; overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; font-weight: 500; color: var(--color-text-secondary); font-size: 11px; padding: 6px 8px; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  td { padding: 6px 8px; color: var(--color-text-primary); border-bottom: 0.5px solid var(--color-border-tertiary); }
+  tr:last-child td { border-bottom: none; }
+  .badge { font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 500; }
+  .badge-green { background: #EAF3DE; color: #3B6D11; }
+  .badge-amber { background: #FAEEDA; color: #854F0B; }
+  .badge-red { background: #FCEBEB; color: #A32D2D; }
+  .badge-blue { background: #E6F1FB; color: #185FA5; }
+  .stock-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; }
+  .stock-item { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px 12px; }
+  .stock-name { font-size: 12px; color: var(--color-text-secondary); }
+  .stock-recv { font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
+  .stock-bar-wrap { height: 4px; background: var(--color-border-tertiary); border-radius: 2px; margin-top: 6px; }
+  .stock-bar { height: 4px; border-radius: 2px; }
+  .tabs { display: flex; gap: 4px; margin-bottom: 1rem; }
+  .tab { padding: 6px 14px; border-radius: var(--border-radius-md); font-size: 13px; cursor: pointer; border: 0.5px solid var(--color-border-tertiary); background: transparent; color: var(--color-text-secondary); }
+  .tab.active { background: var(--color-background-secondary); color: var(--color-text-primary); font-weight: 500; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  @media (max-width: 500px) { .grid2 { grid-template-columns: 1fr; } }
+</style>
+
+<div class="dash">
+  <p class="section-title">Cyrela Móvel — Painel de controle</p>
+  <p style="font-size: 13px; color: var(--color-text-secondary); margin-bottom: 1.25rem;">Janeiro 2026 &nbsp;·&nbsp; 09/01 – 31/01 &nbsp;·&nbsp; Veículo IWK5I59 Master H3L2</p>
+
+  <div class="metrics">
+    <div class="metric">
+      <div class="metric-label">KM rodado</div>
+      <div class="metric-value">402</div>
+      <div class="metric-sub">KM extra: 0</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Gasto combustível</div>
+      <div class="metric-value">R$ 804</div>
+      <div class="metric-sub">R$ 959,64 total − descontos</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Litros consumidos</div>
+      <div class="metric-value">154,6 L</div>
+      <div class="metric-sub">R$ 6,21/litro</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Insumos recebidos</div>
+      <div class="metric-value">1.263</div>
+      <div class="metric-sub">itens no mês</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Dias em campo</div>
+      <div class="metric-value">20</div>
+      <div class="metric-sub">de 31 dias do mês</div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('rodagem')">Rodagem</button>
+    <button class="tab" onclick="switchTab('combustivel')">Combustível</button>
+    <button class="tab" onclick="switchTab('insumos')">Insumos</button>
+    <button class="tab" onclick="switchTab('estoque')">Estoque</button>
+  </div>
+
+  <!-- RODAGEM -->
+  <div class="tab-panel active" id="tab-rodagem">
+    <div class="card">
+      <div class="card-title">KM rodado por dia</div>
+      <div class="legend">
+        <span><span class="legend-dot" style="background:#185FA5;"></span>KM rodado</span>
+      </div>
+      <div class="chart-wrap" style="height: 220px;">
+        <canvas id="chartRodagem" role="img" aria-label="KM rodado por dia em janeiro 2026">KM por dia: 09/jan 17km, 10/jan 24km, 11/jan 22km, 14/jan 25km, 15/jan 12km, 16/jan 8km, 17/jan 28km, 18/jan 26km, 22/jan 30km, 23/jan 12km, 25/jan 49km, 27/jan 24km, 28/jan 15km, 29/jan 79km, 30/jan 16km, 31/jan 15km.</canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Detalhamento de saídas</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Data</th><th>Saída</th><th>KM inicial</th><th>KM chegada</th><th>KM rodado</th></tr></thead>
+          <tbody>
+            <tr><td>09/jan</td><td>06:35</td><td>314.395</td><td>314.412</td><td><span class="badge badge-blue">17</span></td></tr>
+            <tr><td>10/jan</td><td>07:52</td><td>314.412</td><td>314.436</td><td><span class="badge badge-blue">24</span></td></tr>
+            <tr><td>11/jan</td><td>07:51</td><td>314.437</td><td>314.459</td><td><span class="badge badge-blue">22</span></td></tr>
+            <tr><td>14/jan</td><td>07:03</td><td>314.499</td><td>314.524</td><td><span class="badge badge-blue">25</span></td></tr>
+            <tr><td>15/jan</td><td>12:42</td><td>314.524</td><td>314.536</td><td><span class="badge badge-blue">12</span></td></tr>
+            <tr><td>16/jan</td><td>08:06</td><td>314.536</td><td>314.544</td><td><span class="badge badge-blue">8</span></td></tr>
+            <tr><td>17/jan</td><td>07:59</td><td>314.544</td><td>314.572</td><td><span class="badge badge-blue">28</span></td></tr>
+            <tr><td>18/jan</td><td>07:23</td><td>314.572</td><td>314.598</td><td><span class="badge badge-blue">26</span></td></tr>
+            <tr><td>22/jan</td><td>08:13</td><td>314.598</td><td>314.628</td><td><span class="badge badge-blue">30</span></td></tr>
+            <tr><td>23/jan</td><td>07:08</td><td>314.628</td><td>314.640</td><td><span class="badge badge-blue">12</span></td></tr>
+            <tr><td>25/jan</td><td>—</td><td>314.640</td><td>314.689</td><td><span class="badge badge-amber">49</span></td></tr>
+            <tr><td>27/jan</td><td>07:26</td><td>314.692</td><td>314.716</td><td><span class="badge badge-blue">24</span></td></tr>
+            <tr><td>28/jan</td><td>06:52</td><td>314.716</td><td>314.731</td><td><span class="badge badge-blue">15</span></td></tr>
+            <tr><td>29/jan</td><td>06:50</td><td>314.731</td><td>314.810</td><td><span class="badge badge-red">79</span></td></tr>
+            <tr><td>30/jan</td><td>07:31</td><td>314.810</td><td>314.826</td><td><span class="badge badge-blue">16</span></td></tr>
+            <tr><td>31/jan</td><td>07:49</td><td>314.826</td><td>314.841</td><td><span class="badge badge-blue">15</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMBUSTÍVEL -->
+  <div class="tab-panel" id="tab-combustivel">
+    <div class="card">
+      <div class="card-title">Abastecimentos no mês</div>
+      <div class="legend">
+        <span><span class="legend-dot" style="background:#3B6D11;"></span>Litros por abastecimento</span>
+      </div>
+      <div class="chart-wrap" style="height: 220px;">
+        <canvas id="chartComb" role="img" aria-label="Litros abastecidos por data em janeiro 2026">Abastecimentos: 08/jan 8,56L + 20L, 14/jan 9,69L + 9,69L, 16/jan 9,69L, 17/jan 9,69L, 22/jan 9,69L, 23/jan 9,69L, 24/jan 9,69L, 25/jan 9,69L, 27/jan 9,69L, 28/jan 9,69L, 29/jan 9,69L + 9,69L, 31/jan 9,69L.</canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Detalhamento de abastecimentos</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Data</th><th>Litros</th><th>Valor</th><th>NFC-e</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>08/jan</td><td>8,56 L</td><td>R$ 53,84</td><td>686468</td></tr>
+            <tr><td>2</td><td>08/jan</td><td>20,00 L</td><td>R$ 125,80</td><td>686466</td></tr>
+            <tr><td>7/8</td><td>14/jan</td><td>9,69 L × 2</td><td>R$ 120,00</td><td>669777 / 689778</td></tr>
+            <tr><td>10</td><td>16/jan</td><td>9,69 L</td><td>R$ 60,00</td><td>—</td></tr>
+            <tr><td>11</td><td>17/jan</td><td>9,69 L</td><td>R$ 60,00</td><td>—</td></tr>
+            <tr><td>16</td><td>22/jan</td><td>9,69 L</td><td>R$ 60,00</td><td>695060</td></tr>
+            <tr><td>17</td><td>23/jan</td><td>9,69 L</td><td>R$ 60,00</td><td>696151</td></tr>
+            <tr><td>18</td><td>24/jan</td><td>9,69 L</td><td>R$ 60,00</td><td>—</td></tr>
+            <tr><td>19</td><td>25/jan</td><td>9,69 L</td><td>R$ 60,00</td><td>697253</td></tr>
+            <tr><td>21</td><td>27/jan</td><td>9,69 L</td><td>R$ 60,00</td><td>698643</td></tr>
+            <tr><td>22</td><td>28/jan</td><td>9,69 L</td><td>R$ 60,00</td><td>—</td></tr>
+            <tr><td>23/24</td><td>29/jan</td><td>9,69 L × 2</td><td>R$ 120,00</td><td>699993 / 700427</td></tr>
+            <tr><td>25</td><td>31/jan</td><td>9,69 L</td><td>R$ 60,00</td><td>701640</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- INSUMOS -->
+  <div class="tab-panel" id="tab-insumos">
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title">Consumo — água e café</div>
+        <div class="legend">
+          <span><span class="legend-dot" style="background:#185FA5;"></span>Água c/ gás</span>
+          <span><span class="legend-dot" style="background:#1D9E75;"></span>Água s/ gás</span>
+          <span><span class="legend-dot" style="background:#BA7517;"></span>Cápsulas café</span>
+        </div>
+        <div class="chart-wrap" style="height: 200px;">
+          <canvas id="chartInsumos" role="img" aria-label="Consumo total de insumos em janeiro 2026">Consumo: Água com gás 36 unidades, Água sem gás 42 unidades, Cápsulas de café 20 unidades.</canvas>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Consumo por turno (totais)</div>
+        <div class="legend">
+          <span><span class="legend-dot" style="background:#185FA5;"></span>Manhã</span>
+          <span><span class="legend-dot" style="background:#1D9E75;"></span>Tarde</span>
+        </div>
+        <div class="chart-wrap" style="height: 200px;">
+          <canvas id="chartTurno" role="img" aria-label="Consumo de insumos por turno">Manhã: água c/gás 15, água s/gás 12, café 13. Tarde: água c/gás 21, água s/gás 30, café 7.</canvas>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Recebimento de insumos — datas de entrega</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Insumo</th><th>08/jan</th><th>10/jan</th><th>24/jan</th><th>29/jan</th><th>Total recebido</th></tr></thead>
+          <tbody>
+            <tr><td>Água c/ gás</td><td>12</td><td>12</td><td>—</td><td>12</td><td><strong>36</strong></td></tr>
+            <tr><td>Água s/ gás</td><td>12</td><td>12</td><td>12</td><td>12</td><td><strong>48</strong></td></tr>
+            <tr><td>Açúcar</td><td>1</td><td>—</td><td>—</td><td>—</td><td><strong>1</strong></td></tr>
+            <tr><td>Adoçante</td><td>1</td><td>—</td><td>—</td><td>—</td><td><strong>1</strong></td></tr>
+            <tr><td>Álcool gel</td><td>2</td><td>—</td><td>—</td><td>—</td><td><strong>2</strong></td></tr>
+            <tr><td>Cápsula café</td><td>20</td><td>—</td><td>—</td><td>—</td><td><strong>20</strong></td></tr>
+            <tr><td>Copo biodegradável</td><td>1000</td><td>—</td><td>—</td><td>—</td><td><strong>1000</strong></td></tr>
+            <tr><td>Copo descartável</td><td>100</td><td>—</td><td>—</td><td>—</td><td><strong>100</strong></td></tr>
+            <tr><td>Folha A4</td><td>1 resma</td><td>—</td><td>—</td><td>—</td><td><strong>1</strong></td></tr>
+            <tr><td>Guardanapo</td><td>4</td><td>—</td><td>—</td><td>—</td><td><strong>4</strong></td></tr>
+            <tr><td>Pano flanela</td><td>3</td><td>—</td><td>—</td><td>—</td><td><strong>3</strong></td></tr>
+            <tr><td>Saco lixo</td><td>47</td><td>—</td><td>—</td><td>—</td><td><strong>47</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESTOQUE -->
+  <div class="tab-panel" id="tab-estoque">
+    <div class="card">
+      <div class="card-title">Estoque atual (sobra de janeiro)</div>
+      <div class="stock-grid">
+        <div class="stock-item">
+          <div class="stock-name">Água c/ gás</div>
+          <div class="stock-recv" style="color:#A32D2D;">0 un</div>
+          <div class="stock-bar-wrap"><div class="stock-bar" style="width:0%;background:#E24B4A;"></div></div>
+        </div>
+        <div class="stock-item">
+          <div class="stock-name">Água s/ gás</div>
+          <div class="stock-recv">6 un</div>
+          <div class="stock-bar-wrap"><div class="stock-bar" style="width:12%;background:#185FA5;"></div></div>
+        </div>
+        <div class="stock-item">
+          <div class="stock-name">Açúcar</div>
+          <div class="stock-recv">1 un</div>
+          <div class="stock-bar-wrap"><div class="stock-bar" style="width:100%;background:#1D9E75;"></div></div>
+        </div>
+        <div class="stock-item">
+          <div class="stock-name">Adoçante</div>
+          <div class="stock-recv">1 un</div>
+          <div class="stock-bar-wrap"><div class="stock-bar" style="width:100%;background:#1D9E75;"></div></div>
+        </div>
+        <div class="stock-item">
+          <div class="stock-name">Álcool gel</div>
+          <div class="stock-recv">2 un</div>
+          <div class="stock-bar-wrap"><div class="stock-bar" style="width:100%;background:#1D9E75;"></div></div>
+        </div>
+        <div class="stock-item">
+          <div class="stock-name">Cápsula café</div>
+          <div class="stock-recv" style="color:#A32D2D;">0 un</div>
+          <div class="stock-bar-wrap"><div class="stock-bar" style="width:0%;background:#E24B4A;"></div></div>
+        </div>
+        <div class="stock-item">
+          <div class="stock-name">Copo biodegradável</div>
+          <div class="stock-recv">974 un</div>
+          <div class="stock-bar-wrap"><div class="stock-bar" style="width:97%;background:#185FA5;"></div></div>
+        </div>
+        <div class="stock-item">
+          <div class="stock-name">Copo descartável</div>
+          <div class="stock-recv">77 un</div>
+          <div class="stock-bar-wrap"><div class="stock-bar" style="width:77%;background:#185FA5;"></div></div>
+        </div>
+        <div class="stock-item">
+          <div class="stock-name">Folha A4</div>
+          <div class="stock-recv">1 resma</div>
+          <div class="stock-bar-wrap"><div class="stock-bar" style="width:100%;background:#1D9E75;"></div></div>
+        </div>
+        <div class="stock-item">
+          <div class="stock-name">Guardanapo</div>
+          <div class="stock-recv">3 un</div>
+          <div class="stock-bar-wrap"><div class="stock-bar" style="width:75%;background:#1D9E75;"></div></div>
+        </div>
+        <div class="stock-item">
+          <div class="stock-name">Pano flanela</div>
+          <div class="stock-recv">2 un</div>
+          <div class="stock-bar-wrap"><div class="stock-bar" style="width:67%;background:#1D9E75;"></div></div>
+        </div>
+        <div class="stock-item">
+          <div class="stock-name">Saco lixo</div>
+          <div class="stock-recv">32 un</div>
+          <div class="stock-bar-wrap"><div class="stock-bar" style="width:68%;background:#185FA5;"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:0;">
+      <div class="card-title">Resumo de aproveitamento</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Item</th><th>Recebido</th><th>Consumido</th><th>Estoque</th><th>Aproveit.</th></tr></thead>
+          <tbody>
+            <tr><td>Água c/ gás</td><td>36</td><td>36</td><td>0</td><td><span class="badge badge-green">100%</span></td></tr>
+            <tr><td>Água s/ gás</td><td>48</td><td>42</td><td>6</td><td><span class="badge badge-blue">88%</span></td></tr>
+            <tr><td>Cápsula café</td><td>20</td><td>20</td><td>0</td><td><span class="badge badge-green">100%</span></td></tr>
+            <tr><td>Copo biodegradável</td><td>1000</td><td>26</td><td>974</td><td><span class="badge badge-amber">3%</span></td></tr>
+            <tr><td>Copo descartável</td><td>100</td><td>23</td><td>77</td><td><span class="badge badge-amber">23%</span></td></tr>
+            <tr><td>Saco lixo</td><td>47</td><td>15</td><td>32</td><td><span class="badge badge-blue">32%</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+const commonOpts = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: { legend: { display: false } },
+  scales: {
+    x: { grid: { color: 'rgba(128,128,128,0.1)' }, ticks: { font: { size: 11 }, color: '#888' } },
+    y: { grid: { color: 'rgba(128,128,128,0.1)' }, ticks: { font: { size: 11 }, color: '#888' } }
+  }
+};
+
+new Chart(document.getElementById('chartRodagem'), {
+  type: 'bar',
+  data: {
+    labels: ['09','10','11','14','15','16','17','18','22','23','25','27','28','29','30','31'],
+    datasets: [{
+      label: 'KM rodado',
+      data: [17,24,22,25,12,8,28,26,30,12,49,24,15,79,16,15],
+      backgroundColor: '#378ADD',
+      borderRadius: 4
+    }]
+  },
+  options: { ...commonOpts, scales: { ...commonOpts.scales, x: { ...commonOpts.scales.x, ticks: { ...commonOpts.scales.x.ticks, autoSkip: false } } } }
+});
+
+new Chart(document.getElementById('chartComb'), {
+  type: 'bar',
+  data: {
+    labels: ['08 #1','08 #2','14 #1','14 #2','16','17','22','23','24','25','27','28','29 #1','29 #2','31'],
+    datasets: [{
+      label: 'Litros',
+      data: [8.56,20,9.69,9.69,9.69,9.69,9.69,9.69,9.69,9.69,9.69,9.69,9.69,9.69,9.69],
+      backgroundColor: '#639922',
+      borderRadius: 4
+    }]
+  },
+  options: { ...commonOpts, scales: { ...commonOpts.scales, x: { ...commonOpts.scales.x, ticks: { font: {size: 10}, color: '#888', autoSkip: false, maxRotation: 45 } } } }
+});
+
+new Chart(document.getElementById('chartInsumos'), {
+  type: 'bar',
+  data: {
+    labels: ['Água c/ gás', 'Água s/ gás', 'Cápsula café'],
+    datasets: [{
+      label: 'Recebido',
+      data: [36,48,20],
+      backgroundColor: '#B5D4F4',
+      borderRadius: 4,
+    },{
+      label: 'Consumido',
+      data: [36,42,20],
+      backgroundColor: '#185FA5',
+      borderRadius: 4,
+    }]
+  },
+  options: { ...commonOpts, plugins: { legend: { display: false } } }
+});
+
+new Chart(document.getElementById('chartTurno'), {
+  type: 'bar',
+  data: {
+    labels: ['Água c/ gás', 'Água s/ gás', 'Cápsula café'],
+    datasets: [
+      { label: 'Manhã', data: [15,12,13], backgroundColor: '#185FA5', borderRadius: 4 },
+      { label: 'Tarde', data: [21,30,7], backgroundColor: '#1D9E75', borderRadius: 4 }
+    ]
+  },
+  options: { ...commonOpts, plugins: { legend: { display: false } } }
+});
+</script>
